@@ -1,0 +1,23 @@
+#!/bin/bash
+set -e
+
+echo -e "Deactivating eGPU...\n"
+
+sudo prime-select intel
+
+LOGOUT_DEFAULT_ANS="yes"
+read -p "A session refresh is required. Do you wish to logout now? (yes): " LOGOUT_ANS
+LOGOUT_ANS=${LOGOUT_ANS:-$LOGOUT_DEFAULT_ANS}
+
+echo ""
+
+if [[ "$LOGOUT_ANS" =~ [Yesyes]$ ]]; then
+	echo -e "Logging current user out of session..."
+	sleep 2.0s;
+	USR=$USER;
+	pkill -KILL -u $USR
+
+else
+	echo -e "Exiting...";
+	exit 0;
+fi;

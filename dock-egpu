@@ -1,0 +1,76 @@
+#!/bin/bash
+set -e
+
+#Functions
+function getGpus() {
+	gpus="$(lspci | grep -i "vga")";
+	gpuCount=0;
+	while IFS= read -r line; do
+		gpuCount=$((gpuCount+1))
+    	echo "[$gpuCount] $line"
+	done <<< "$gpus"
+}
+
+function setupXorg() {
+	sudo cp $XORG_EGPU_SOURCE $XORG_MAIN_SOURCE;
+	SOURCE_SIZE=$(stat -c%s $1)
+	DEST_SIZE=$(stat -c%s $2)
+	if [[ "$SOURCE_SIZE" -eq "$DEST_SIZE" ]]
+	then
+    	echo "configured";
+	fi;
+}
+
+#Variables
+XORG_MAIN_SOURCE="/etc/X11/xorg.conf";
+XORG_EGPU_SOURCE="/etc/X11/xorg.conf.egpu";
+
+
+
+echo -e "Listing gpus...\n";
+echo -e "$(getGpus)\n";
+
+read -p "Is your eGPU listed? [y/n]:" ans
+
+if [[ "$ans" =~ ^[Yy]$ ]]
+	then
+		echo -e "Activating eGPU...\n";
+		sudo prime-select nvidia;
+		sleep 0.5s;
+
+		echo -e "Creating xorg.conf file...\n";
+
+		xorg_status="$(setupXorg $XORG_MAIN_SOURCE $XORG_EGPU_SOURCE)";
+
+		if [ $xorg_status == "configured" ]; then
+
+			echo -e "Xorg configured successfully!\n";
+
+			LOGOUT_DEFAULT_ANS="yes"
+			read -p "A session refresh is required. Do you wish to logout now? (yes): " LOGOUT_ANS
+			LOGOUT_ANS=${LOGOUT_ANS:-$LOGOUT_DEFAULT_ANS}
+			echo ""
+			
+			if [[ "$LOGOUT_ANS" =~ [Yesyes]$ ]]; then
+				echo -e "Logging current user out of session..."
+				sleep 2.0s;
+				USR=$USER;
+				pkill -KILL -u $USR
+
+			else
+				echo -e "Exiting...";
+				exit 0;
+			fi;
+		else
+			echo "There was an error configuring the xorg.conf file";
+			exit 0;
+		fi
+	else
+		echo "Exiting...";
+		exit 0;
+	fi;
+	
+
+
+
+
