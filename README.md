@@ -16,7 +16,7 @@ Scripts that deal with docking and un-docking an eGPU from the Razer Blade lapto
 
 - Open the xorg.conf.egpu file inside the project directory
 
-  - 1) set the Intel Bus ID:
+  - 1. set the Intel Bus ID:
 
   - ```
     Section "Device"
@@ -29,7 +29,7 @@ Scripts that deal with docking and un-docking an eGPU from the Razer Blade lapto
 
     - **Be sure to maintain the same Bus ID formatting (i.e. Bus ID `00:02.0` would be `PCI:0@0:2:0`)**
 
-  - 2) set the Nvidia eGPU Bus ID:
+  - 2.  set the Nvidia eGPU Bus ID:
 
     - ```
       Section "Device"
@@ -44,7 +44,7 @@ Scripts that deal with docking and un-docking an eGPU from the Razer Blade lapto
 
       - The key here is the `Option "AllowExternalGpus"` option. Without this, the eGPU will not be recognized.
 
-  - 3) Save the file.
+  - 3. Save the file.
 
 - Copy the xorg.conf.epu file into your X11 folder. In my case, my X11 folder lives at `/etc/X11` 
 
